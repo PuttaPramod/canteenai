@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Canteen AI Predictor</title>
+<link rel="stylesheet" href="styles.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand"><div class="nav-dot"></div>Canteen AI</div>
+  <div class="nav-links">
+    <a class="nav-link" href="#predict">⚙️ Predict</a>
+    <a class="nav-link" href="#results">📊 Results</a>
+    <a class="nav-link" href="#charts">📈 Chart</a>
+    <a class="nav-link" href="#insights">🤖 AI Insight</a>
+    <a class="nav-link" href="#recommendations">💡 Tips</a>
+    <a class="nav-link" href="#history">🕓 History</a>
+  </div>
+  <div class="live-pill"><div class="live-dot"></div>LIVE AI</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">🤖 Powered by Claude AI</div>
+  <h1>Smart Canteen<br><span>Demand Predictor</span></h1>
+  <p>Set your parameters and get an AI-powered demand forecast instantly — reduce food waste, prevent shortages.</p>
+</div>
+
+<div class="wrap">
+
+  <!-- PREDICT -->
+  <section id="predict" class="sec fadein">
+    <div class="sec-title">⚙️ Set Parameters</div>
+    <div class="sec-sub">Fill in the details below and click <strong>Run AI Prediction</strong>.</div>
+    <div class="card">
+      <div class="params-grid">
+        <div class="field">
+          <label>🍛 Food Item</label>
+          <select id="s-item">
+            <option>Biryani</option><option>Fried Rice</option><option>Chapati</option>
+            <option>Veg Curry</option><option>Samosa</option><option>Dosa</option>
+            <option>Pasta</option><option>Fresh Juice</option><option>Noodles</option>
+            <option>Paneer Butter Masala</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>📅 Day of Week</label>
+          <select id="s-day">
+            <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+            <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>⏰ Meal Time</label>
+          <select id="s-meal">
+            <option>Breakfast</option><option>Lunch</option><option>Evening Snacks</option><option>Dinner</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>🌤️ Weather</label>
+          <select id="s-weather">
+            <option>Sunny</option><option>Rainy</option><option>Cloudy</option>
+            <option>Hot &amp; Humid</option><option>Cold</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>🎉 Special Event</label>
+          <select id="s-event">
+            <option>None</option><option>Sports Day</option><option>Cultural Fest</option>
+            <option>Exam Week</option><option>Holiday</option><option>Freshers Day</option>
+            <option>Annual Day</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>👥 Expected Footfall</label>
+          <select id="s-footfall">
+            <option>Low (&lt;100 people)</option><option>Medium (100–300)</option>
+            <option>High (300–600)</option><option>Very High (600+)</option>
+          </select>
+        </div>
+      </div>
+      <button class="run-btn" id="run-btn" onclick="runPrediction()">
+        <span class="btn-txt">⚡ Run AI Prediction</span>
+        <div class="spinner"></div>
+      </button>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="sec fadein" style="animation-delay:.05s">
+    <div class="sec-title">📊 Prediction Results</div>
+    <div class="sec-sub">How many portions to prepare — with safe minimum and maximum bounds.</div>
+    <div class="metrics-grid" id="metrics-grid">
+      <!-- Predicted -->
+      <div class="metric">
+        <div class="metric-header">
+          <span class="metric-label-top">🎯 Target</span>
+          <span class="metric-icon">📊</span>
+        </div>
+        <div class="metric-number" id="mv-pred" style="color:#0ea5a0">—</div>
+        <div class="metric-name">Portions to Prepare</div>
+        <div class="metric-desc" id="ms-pred">Awaiting prediction</div>
+      </div>
+      <!-- Lower -->
+      <div class="metric">
+        <div class="metric-header">
+          <span class="metric-label-top">📉 Minimum</span>
+          <span class="metric-icon">🔽</span>
+        </div>
+        <div class="metric-number" id="mv-low" style="color:#16a34a">—</div>
+        <div class="metric-name">Safe Lower Bound</div>
+        <div class="metric-desc">Don't prepare less than this</div>
+      </div>
+      <!-- Upper -->
+      <div class="metric">
+        <div class="metric-header">
+          <span class="metric-label-top">📈 Maximum</span>
+          <span class="metric-icon">🔼</span>
+        </div>
+        <div class="metric-number" id="mv-high" style="color:#ea580c">—</div>
+        <div class="metric-name">Peak Upper Bound</div>
+        <div class="metric-desc">Prepare up to this for busy days</div>
+      </div>
+      <!-- Confidence -->
+      <div class="metric">
+        <div class="metric-header">
+          <span class="metric-label-top">🎯 Accuracy</span>
+          <span class="metric-icon">✅</span>
+        </div>
+        <div class="metric-number" id="mv-conf" style="color:#7c3aed">—</div>
+        <div class="metric-name">Model Confidence</div>
+        <div class="metric-desc">How reliable this prediction is</div>
+      </div>
+      <!-- Urgency -->
+      <div class="metric">
+        <div class="metric-header">
+          <span class="metric-label-top">⚡ Priority</span>
+          <span class="metric-icon">🚨</span>
+        </div>
+        <div class="metric-number" id="mv-urgency" style="color:#f05a3a;font-size:22px;padding-top:6px">—</div>
+        <div class="metric-name">Preparation Urgency</div>
+        <div class="metric-desc" id="ms-urgency">How early to start cooking</div>
+      </div>
+      <!-- Waste -->
+      <div class="metric">
+        <div class="metric-header">
+          <span class="metric-label-top">⚠️ Waste Risk</span>
+          <span class="metric-icon">🗑️</span>
+        </div>
+        <div class="metric-number" id="mv-waste" style="color:#d97706">—</div>
+        <div class="metric-name">Portions at Waste Risk</div>
+        <div class="metric-desc">Likely unsold if over-prepared</div>
+      </div>
+    </div>
+    <!-- meaning box -->
+    <div class="meaning-box" id="meaning-box" style="display:none">
+      <strong>📌 How to read these numbers:</strong> Prepare <span id="mb-text">—</span> portions.
+      If today is uncertain, prepare up to <span id="mb-upper">—</span>. Never go below <span id="mb-lower">—</span> or you'll run out.
+    </div>
+  </section>
+
+  <!-- CHART -->
+  <section id="charts" class="sec fadein" style="animation-delay:.08s">
+    <div class="chart-wrap-card">
+      <div class="chart-top">
+        <div class="chart-title-wrap">
+          <div class="ctitle">📈 Demand Forecast Chart</div>
+          <div class="csub" id="chart-sub">Run a prediction to see forecast data</div>
+        </div>
+        <div class="pills">
+          <button class="pill active" data-t="weekly" onclick="switchTab(this)">📅 Weekly</button>
+          <button class="pill" data-t="hourly" onclick="switchTab(this)">⏱ Hourly</button>
+          <button class="pill" data-t="compare" onclick="switchTab(this)">🏆 All Items</button>
+        </div>
+      </div>
+      <div class="chart-legend" id="chart-legend" style="display:none">
+        <div class="legend-item"><div class="legend-dot" style="background:#0ea5a0"></div>Highest demand day</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#0f2044"></div>Other days</div>
+        <div class="legend-item" id="legend-selected" style="display:none"><div class="legend-dot" style="background:#f05a3a"></div><span id="legend-sel-text">Selected day</span></div>
+      </div>
+      <canvas id="chart" height="230"></canvas>
+    </div>
+  </section>
+
+  <!-- AI INSIGHT -->
+  <section id="insights" class="sec fadein" style="animation-delay:.1s">
+    <div class="sec-title">🤖 AI Insight</div>
+    <div class="sec-sub">Real-time analysis from Claude AI — practical advice for your canteen manager.</div>
+    <div class="ai-card">
+      <div class="ai-head">
+        <div class="ai-icon">🤖</div>
+        <div class="ai-head-text">
+          <h3>Claude AI Analysis</h3>
+          <p>Powered by claude-sonnet · Updates on every prediction</p>
+        </div>
+      </div>
+      <div class="ai-body dim" id="ai-text">Run a prediction above to get live AI-powered canteen advice here.</div>
+      <div class="factor-chips" id="factor-chips">
+        <div class="fchip">
+          <div class="fchip-row"><span class="fchip-name">Day of Week</span><span class="fchip-val" id="fv-day">—</span></div>
+          <div class="fbar"><div class="fbar-fill" id="ff-day" style="width:0%"></div></div>
+        </div>
+        <div class="fchip">
+          <div class="fchip-row"><span class="fchip-name">Meal Time</span><span class="fchip-val" id="fv-meal">—</span></div>
+          <div class="fbar"><div class="fbar-fill" id="ff-meal" style="width:0%"></div></div>
+        </div>
+        <div class="fchip">
+          <div class="fchip-row"><span class="fchip-name">Weather</span><span class="fchip-val" id="fv-weather">—</span></div>
+          <div class="fbar"><div class="fbar-fill" id="ff-weather" style="width:0%"></div></div>
+        </div>
+        <div class="fchip">
+          <div class="fchip-row"><span class="fchip-name">Special Event</span><span class="fchip-val" id="fv-event">—</span></div>
+          <div class="fbar"><div class="fbar-fill" id="ff-event" style="width:0%"></div></div>
+        </div>
+        <div class="fchip">
+          <div class="fchip-row"><span class="fchip-name">Footfall</span><span class="fchip-val" id="fv-footfall">—</span></div>
+          <div class="fbar"><div class="fbar-fill" id="ff-footfall" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div style="margin-top:14px;font-size:11px;color:rgba(255,255,255,0.3);position:relative;z-index:1">
+        ℹ️ Factor % shows how much each condition boosts or reduces the base demand. 100% = neutral, above = boost, below = reduction.
+      </div>
+    </div>
+  </section>
+
+  <!-- TIPS -->
+  <section id="recommendations" class="sec fadein" style="animation-delay:.12s">
+    <div class="sec-title">💡 Actionable Tips</div>
+    <div class="sec-sub">Smart suggestions based on your prediction results.</div>
+    <div class="recs-grid" id="recs-grid">
+      <div class="rec" style="background:#f8fafc;border-color:var(--slate3)">
+        <div class="rec-icon">💡</div>
+        <h4 style="color:var(--slate)">Tips will appear here</h4>
+        <p>Run a prediction to get personalized actionable recommendations for stock, waste, and more.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="history" class="sec fadein" style="animation-delay:.14s">
+    <div class="sec-title">🕓 Prediction History</div>
+    <div class="sec-sub">Your last 8 predictions for quick reference.</div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Food Item</th>
+            <th>Day</th>
+            <th>Meal</th>
+            <th>Prepare (units)</th>
+            <th>Min – Max range</th>
+            <th>Confidence</th>
+            <th>Event</th>
+            <th>Time</th>
+          </tr></thead>
+          <tbody id="hist-body">
+            <tr>
+              <td colspan="8">
+                <div class="empty"><div class="empty-icon">📋</div><p>No predictions yet. Run your first prediction above.</p></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div>
+<footer>Canteen AI Predictor · Powered by Claude AI · Pure HTML / CSS / JS — No Frameworks</footer>
+
+<script src="script.js">
+// ── ML DATA ──────────────────────────────────────────────────────────────────
+
+</script>
+</body>
+</html>
